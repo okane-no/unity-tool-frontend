@@ -108,6 +108,24 @@
   let useTopCut = false;
   let topCutSize = 4;
 
+  const CHROME_STORE_URL = "https://chromewebstore.google.com/detail/<your-extension>/<store-id>";
+  const GITHUB_FRONTEND_URL = "https://github.com/okane-no/unity-tool-frontend";
+  const GITHUB_EXTENSION_URL = "https://https://github.com/okane-no/unity-tool-extension";
+  const TOS_VERSION = "2025-09-08";
+  const TOS_COOKIE  = `okane_tos_${TOS_VERSION}`;
+  const HEADER_OFFSET = 96;   
+  const SLIDE_MS = 400;   
+  let tosAccepted = false;
+
+  // Published Web Store ID (stable in prod)
+  const STORE_EXTENSION_ID = (import.meta as any).env?.VITE_OKANE_STORE_ID ?? "llmhmmabbnehnlkmgpkccmedfpijkhhc";
+
+  let extInstalled = false;
+  let checking = false;
+  let statusMsg = "";
+
+
+
   function autoSelectTopCut() {
     if (useTopCut) {
       topCutSize = eventlinkStandings.length > 16 ? 8 : 4;
@@ -255,6 +273,7 @@ function resetToStep3() {
 let loadingStep5 = false;
 
 const handleNextToStep5 = async () => {
+  
   loadingStep5 = true;
   searchedForEvent = false
   if (selectedEventlinkEvent) {
@@ -279,7 +298,9 @@ const handleNextToStep5 = async () => {
       }
       
 		}
-  currentStep = 5;
+
+    goTo(5)
+  //currentStep = 5;
   
 };
 
@@ -454,16 +475,6 @@ onMount(async () => {
 
   onMount(detectExtension);
 
-  const CHROME_STORE_URL = "https://chromewebstore.google.com/detail/<your-extension>/<store-id>";
-  const GITHUB_FRONTEND_URL = "https://github.com/okane-no/unity-tool-frontend";
-  const GITHUB_EXTENSION_URL = "https://https://github.com/okane-no/unity-tool-extension";
-
-  // Published Web Store ID (stable in prod)
-  const STORE_EXTENSION_ID = (import.meta as any).env?.VITE_OKANE_STORE_ID ?? "llmhmmabbnehnlkmgpkccmedfpijkhhc";
-
-  let extInstalled = false;
-  let checking = false;
-  let statusMsg = "";
 
     $: startHelpText = extInstalled
     ? "Extension ready — you're good to go."
@@ -510,11 +521,6 @@ onMount(async () => {
     }
   }
 
-  const TOS_VERSION = "2025-09-08";                  // bump when ToS changes
-  const TOS_COOKIE  = `okane_tos_${TOS_VERSION}`;    // name includes version
-
-  let tosAccepted = false;
-
   function getCookie(name: string): string | null {
     const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
     return m ? decodeURIComponent(m[1]) : null;
@@ -527,7 +533,7 @@ onMount(async () => {
     const d = new Date();
     d.setTime(d.getTime() + days * 864e5);
     let cookie = `${name}=${encodeURIComponent(value)}; Expires=${d.toUTCString()}; Path=${path}; SameSite=${sameSite}`;
-    if (secure) cookie += "; Secure"; // won’t apply on http://localhost (that’s fine)
+    if (secure) cookie += "; Secure";
     document.cookie = cookie;
   }
 
@@ -552,7 +558,36 @@ onMount(async () => {
     setCookie(WIZARD_STARTED_COOKIE, "1");
     currentStep = 1;
   }
-  
+
+
+  async function goTo(step: number) {
+    currentStep = step;
+    await tick();
+    requestAnimationFrame(() => scrollToStep(step));
+    setTimeout(() => scrollToStep(step), SLIDE_MS + 50);
+  }
+
+  function scrollToStep(step: number) {
+    const el = document.getElementById(`step-${step}`);
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const targetY = rect.top + window.scrollY - HEADER_OFFSET;
+
+    window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+  }
+/// Calender fix while cant use other than current month
+    const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  const now = new Date();
+  const minDate = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+  const maxDate = fmt(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+
+  // Optional: clear/clamp if user somehow sets a date outside the month
+  $: if (selectedDate && (selectedDate < minDate || selectedDate > maxDate)) {
+    selectedDate = minDate;
+  }
 
 </script>
 
@@ -566,11 +601,20 @@ onMount(async () => {
 
 <div class="max-w-3xl mx-auto px-4 py-8 space-y-6">
   <h1 class="text-2xl font-bold">🔄 Sync Eventlink → Unity</h1>
-
+    <p class="mt-1 text-xs text-zinc-500">
+      <span class="opacity-70">Gadget No.</span>
+      <span class="ml-1 inline-flex items-center gap-1 font-mono px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/60">
+        FG-204 <span class="opacity-70">(β)</span>
+      </span>
+      <span class="ml-2 opacity-70">beta build</span>
+    </p>
 
 
         {#each [0,1,2,3,4,5] as stepId}
-  <div class="max-w-3xl mx-auto mb-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 shadow-sm">
+    <div
+    id={`step-${stepId}`}
+    class="max-w-3xl mx-auto mb-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 shadow-sm rounded-2xl overflow-hidden scroll-mt-24"
+  >
     <div class="px-5 py-3 border-b border-zinc-200 dark:border-zinc-800 rounded-t-2xl bg-zinc-50/70 dark:bg-zinc-900 flex items-center justify-between">
       <h2 class="text-lg font-semibold">
         {stepId}. {stepTitle(stepId)}
@@ -599,8 +643,8 @@ onMount(async () => {
         <h3 class="text-sm font-semibold mb-1">What you need</h3>
         <ul class="text-sm list-disc ml-5 space-y-1">
           <li>Unity account (organizer)</li>
-          <li>Logged in Eventlink account in the same browser</li>
-          <li>Okane Helper Extension installed on Chrome</li>
+          <li>A logged in Eventlink account in the same browser</li>
+          <li>Eventlink → Unity Sync Helper extension installed on Chrome</li>
         </ul>
       </div>
       <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
@@ -767,7 +811,18 @@ onMount(async () => {
 
           {:else if stepId === 4}
             {#if unityTarget === 'new'}
-              <label>Date: <input class="w-full border rounded px-2 py-1" type="date" bind:value={selectedDate} /></label>
+            <!-- Calender fix for when all months is ok -->
+              <!-- <label>Date: <input class="w-full border rounded px-2 py-1" type="date" bind:value={selectedDate} /></label> -->
+               <label class="block text-sm font-medium">
+                  Date:
+                  <input
+                    class="w-full border rounded px-2 py-1"
+                    type="date"
+                    bind:value={selectedDate}
+                    min={minDate}
+                    max={maxDate}
+                  />
+              </label>
               <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
             <span class="font-semibold">NB:</span> Current patch only finds events from <span class="font-medium"> this month</span>.
           </div>
@@ -796,7 +851,11 @@ onMount(async () => {
               {/if}
             {:else}
               <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700 disabled:opacity-25" disabled={true} on:click={loadMyUnityEvents}>Load My Events</button>
-              Will be active in next patch.
+              <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <span class="font-semibold">NB:</span> Will be active in next patch.
+          </div>
+              
+              
               {#if unityEvents.length > 0}
                 <label>
                   Choose Unity Event:
