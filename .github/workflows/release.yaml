@@ -53,3 +53,14 @@ jobs:
             API_KEY_EVENTLINK=${{ secrets.API_KEY_EVENTLINK }}
             API_BASE_UNITY=${{ secrets.API_BASE_UNITY }}
             API_KEY_UNITY=${{ secrets.API_KEY_UNITY }}
+
+      - name: Deploy to k3s Cluster
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        run: |
+          mkdir -p $HOME/.kube  # Ensure the .kube directory exists
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
+
+
+          kubectl apply -f k8s/prod --validate=false
+          kubectl rollout restart deployment/unity-tool-frontend -n unity-tool-prod
