@@ -73,6 +73,7 @@ function traceId() {
 }
 
 async function forward(request: Request, url: URL): Promise<Response> {
+  
   const op = url.searchParams.get('op');
   if (!op) return new Response('Missing ?op=', { status: 400 });
 
@@ -107,6 +108,7 @@ async function forward(request: Request, url: URL): Promise<Response> {
       headers,
       body: hasBody ? await request.text() : undefined
     });
+    
 
     const ms = Date.now() - t0;
     console.error(`[unity-proxy] done  op=${op} status=${resp.status} ms=${ms} trace=${t}`);

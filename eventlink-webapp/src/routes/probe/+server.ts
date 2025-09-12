@@ -17,8 +17,6 @@ export const GET: RequestHandler = async (event) => {
       NODE_ENV: process.env.NODE_ENV,
       HOST: process.env.HOST,
       PORT: process.env.PORT,
-      API_ADRESS: API_BASE_UNITY,
-      API_KEY: API_KEY_UNITY,
     },
     node: {
       pid: process.pid,
