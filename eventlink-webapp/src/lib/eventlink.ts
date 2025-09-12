@@ -42,7 +42,15 @@
 // 	return data;
 // }
 
-const BACKEND_URL = '/api/eventlink'; // go through SvelteKit (adds X-Api-Key)
+// go through SvelteKit (adds X-Api-Key)
+let BACKEND_URL: string;
+
+if (process.env.NODE_ENV === 'production') {
+  BACKEND_URL = 'https://api.eventlinktounity.com/api/eventlink';
+
+} else {
+  BACKEND_URL = '/api/eventlink'; 
+}
 
 /** Fetch calendar for a given date and store */
 export async function fetchCalendarEvents(date: string, store: string, cookies: chrome.cookies.Cookie[]) {
