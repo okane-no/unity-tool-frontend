@@ -49,3 +49,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             APIKEY_PEPPER=${{ secrets.APIKEY_PEPPER }}
+            API_BASE_EVENTLINK=${{ secrets.API_BASE_EVENTLINK }}
+            API_KEY_EVENTLINK=${{ secrets.API_KEY_EVENTLINK }}
+            API_BASE_UNITY=${{ secrets.API_BASE_UNITY }}
+            API_KEY_UNITY=${{ secrets.API_KEY_UNITY }}
