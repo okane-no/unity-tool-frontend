@@ -74,6 +74,6 @@ spec:
               number: 80
   tls: 
   - hosts:
-    - eventlinktounity.no
-    - www.eventlinktounity.no  # Added www.eventlinktounity.no to TLS hosts
+    - eventlinktounity.com
+    - www.eventlinktounity.com
     secretName: unity-tool-frontend-tls
