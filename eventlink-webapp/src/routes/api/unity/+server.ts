@@ -25,7 +25,7 @@ async function forward(request: Request, url: URL): Promise<Response> {
   search.delete('op');
   const qs = search.toString();
   const path = conf.backend + (qs ? `?${qs}` : '');
-
+   console.log("This is the API_KEY_UNITY", API_KEY_UNITY)
   const headers = new Headers({ 'X-Api-Key': API_KEY_UNITY });
   const auth = request.headers.get('authorization');
   if (auth) headers.set('authorization', auth);
