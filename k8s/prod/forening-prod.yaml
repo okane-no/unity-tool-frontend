@@ -47,7 +47,6 @@ metadata:
   name: unity-tool-frontend-ingress
   namespace: unity-tool-prod
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/cluster-issuer: "letsencrypt-certificate"
 spec:
   ingressClassName: nginx
