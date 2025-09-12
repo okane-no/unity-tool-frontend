@@ -13,6 +13,8 @@ const ROUTES: Record<string, { method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELET
 };
 
 async function forward(request: Request, url: URL): Promise<Response> {
+  console.log('using the proxy')
+  console.log("This is the API_KEY_UNITY", API_KEY_UNITY, 'this is base', API_BASE_UNITY)
   const op = url.searchParams.get('op');
   if (!op) return new Response('Missing ?op=', { status: 400 });
 

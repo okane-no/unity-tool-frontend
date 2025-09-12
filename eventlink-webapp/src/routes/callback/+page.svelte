@@ -13,6 +13,7 @@
     if (!verifier) { error = 'Missing PKCE code verifier'; return; }
 
     try {
+      console.log("Trying to exhange codes")
       // 🔒 Call SvelteKit proxy; it adds X-Api-Key and forwards to /api/unity-oauth/exchange-code
       const res = await fetch('/api/unity?op=oauth.exchange', {
         method: 'POST',
