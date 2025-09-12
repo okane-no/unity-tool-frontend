@@ -29,7 +29,7 @@
         <p>
           This Privacy Policy explains how <strong>{CONTROLLER_NAME}</strong> (“we”, “us”) collects and processes
           personal data when you use the tools that help organizers sync Magic: The Gathering™ Eventlink results to
-          Unity League, including the web app, the “Okane Helper” browser extension, and related backend APIs
+          Unity League, including the web app, the “Eventlink → Unity Sync Helper” browser extension, and related backend APIs
           (collectively, the “Service”).
         </p>
         <p class="mt-2">
