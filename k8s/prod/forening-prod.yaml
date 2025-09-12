@@ -69,7 +69,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: forening
+            name: unity-tool-frontend
             port:
               number: 80
   tls: 
