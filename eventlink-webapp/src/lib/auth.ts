@@ -3,7 +3,7 @@ import { generateCodeChallenge, generateCodeVerifier } from './pcke';
 
 
 const EXTENSION_ID = 'llmhmmabbnehnlkmgpkccmedfpijkhhc';
-const LOCAL_UNITY_API = '/api/unity';
+const LOCAL_UNITY_API = 'http://unity-tool-backend.unity-tool-prod.svc.cluster.local:80';
 const EVENTLINK_PROXY = '/api/eventlink';
 
 export async function requestCookiesFromExtension(): Promise<chrome.cookies.Cookie[]> {
