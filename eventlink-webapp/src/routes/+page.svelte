@@ -603,7 +603,7 @@ onMount(async () => {
   <h1 class="text-2xl font-bold">🔄 Sync Eventlink → Unity</h1>
     <p class="mt-1 text-xs text-zinc-500">
       <span class="opacity-70">Gadget No.</span>
-      <span class="ml-1 inline-flex items-center gap-1 font-mono px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/60">
+      <span class="ml-1 inline-flex items-center gap-1 font-mono px-1.5 py-0.5 rounded border border-zinc-200  bg-zinc-50 ">
         FG-204 <span class="opacity-70">(β)</span>
       </span>
       <span class="ml-2 opacity-70">beta build</span>
@@ -613,9 +613,9 @@ onMount(async () => {
         {#each [0,1,2,3,4,5] as stepId}
     <div
     id={`step-${stepId}`}
-    class="max-w-3xl mx-auto mb-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 shadow-sm rounded-2xl overflow-hidden scroll-mt-24"
+    class="max-w-3xl mx-auto mb-4 rounded-2xl border border-zinc-200 bg-white/70 shadow-sm rounded-2xl overflow-hidden scroll-mt-24"
   >
-    <div class="px-5 py-3 border-b border-zinc-200 dark:border-zinc-800 rounded-t-2xl bg-zinc-50/70 dark:bg-zinc-900 flex items-center justify-between">
+    <div class="px-5 py-3 border-b border-zinc-200  rounded-t-2xl bg-zinc-50/70  flex items-center justify-between">
       <h2 class="text-lg font-semibold">
         {stepId}. {stepTitle(stepId)}
       </h2>
@@ -634,12 +634,12 @@ onMount(async () => {
       <div class="p-5 space-y-4" transition:slide|local>
           {#if stepId === 0}
       
-    <p class="text-sm text-zinc-700 dark:text-zinc-300">
+    <p class="text-sm text-zinc-700 ">
       This wizard syncs an Eventlink event to Unity League. You’ll log in, pick the source event, preview, and push. One-click sync — no manual data entry in Unity.
     </p>
 
     <div class="grid gap-3 sm:grid-cols-2">
-      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+      <div class="rounded-xl border border-zinc-200  p-4">
         <h3 class="text-sm font-semibold mb-1">What you need</h3>
         <ul class="text-sm list-disc ml-5 space-y-1">
           <li>Unity account (organizer)</li>
@@ -647,7 +647,7 @@ onMount(async () => {
           <li>Eventlink → Unity Sync Helper extension installed on Chrome</li>
         </ul>
       </div>
-      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+      <div class="rounded-xl border border-zinc-200  p-4">
         <h3 class="text-sm font-semibold mb-1">What this does</h3>
         <ul class="text-sm list-disc ml-5 space-y-1">
           <li>Reads Eventlink data via your browser session</li>
@@ -698,7 +698,7 @@ onMount(async () => {
         </button>
       </div>
     </div>
-<div class="mt-4 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+<div class="mt-4 rounded-xl border border-zinc-200 p-4">
   <label class="flex items-start gap-3">
     <input
       type="checkbox"
@@ -706,7 +706,7 @@ onMount(async () => {
       checked={tosAccepted}
       on:change={(e) => e.currentTarget.checked && acceptTos()}
     />
-    <span class="text-sm text-zinc-700 dark:text-zinc-300">
+    <span class="text-sm text-zinc-700 ">
       I have read and agree to the
       <a href="/tos" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-4">Terms of Use</a>
       and
@@ -742,7 +742,7 @@ onMount(async () => {
 </div>
           {:else if stepId === 1}
             {#if unityLoggedIn}
-              <div class="max-w-xl rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 shadow-sm p-5">
+              <div class="max-w-xl rounded-2xl border border-zinc-200  bg-white/70 shadow-sm p-5">
                 <div class="flex items-start gap-4">
                   <div class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center text-base font-semibold shadow">
                     {(() => {
@@ -753,15 +753,15 @@ onMount(async () => {
 
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                      <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                      <h3 class="text-lg font-semibold text-zinc-900  truncate">
                         {([userInfo.first_name, userInfo.last_name].filter(Boolean).join(' ') || userInfo.username)}
                       </h3>
-                      <span class="px-2 py-0.5 text-xs rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                      <span class="px-2 py-0.5 text-xs rounded-full bg-zinc-100  text-zinc-700  border-zinc-200 ">
                         {userInfo.username}
                       </span>
                     </div>
 
-                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-300 break-all">
+                    <p class="mt-1 text-sm text-zinc-600  break-all">
                       <a class="underline decoration-dotted underline-offset-4" href={"mailto:" + userInfo.email}>
                         {userInfo.email}
                       </a>
@@ -998,11 +998,11 @@ onMount(async () => {
 </div>
 
 <footer class="fixed bottom-3 left-1/2 -translate-x-1/2 z-50
-                rounded-full border border-zinc-200/60 dark:border-zinc-800/60
-                bg-white/80 dark:bg-zinc-900/80 backdrop-blur
+                rounded-full border border-zinc-200/60
+                bg-white/80 backdrop-blur
                 px-2 py-1 text-[10px] leading-4 text-zinc-500 shadow">
   <div class="flex items-center gap-2">
-    <span class="inline-flex items-center gap-1 rounded bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 font-mono">
+    <span class="inline-flex items-center gap-1 rounded bg-zinc-100  px-1.5 py-0.5 font-mono">
       <span class="opacity-60">sha</span>
       <code title={COMMIT_SHA}>{COMMIT_SHA.slice(0, 7) || 'dev'}</code>
     </span>
@@ -1020,7 +1020,7 @@ onMount(async () => {
 
     <span class="opacity-50">•</span>
     <a
-      class="px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 text-[10px]
+      class="px-1.5 py-0.5 rounded-md border border-zinc-200  text-[10px]
              hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer"
       rel="noopener noreferrer" target="_blank" href={GITHUB_FRONTEND_URL}
     >
@@ -1028,7 +1028,7 @@ onMount(async () => {
     </a>
     <span class="opacity-50">•</span>
     <a
-      class="px-1.5 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 text-[10px]
+      class="px-1.5 py-0.5 rounded-md border border-zinc-200  text-[10px]
              hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer"
       rel="noopener noreferrer" target="_blank" href={GITHUB_EXTENSION_URL}
     >

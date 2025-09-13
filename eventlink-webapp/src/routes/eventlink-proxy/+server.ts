@@ -25,14 +25,12 @@ async function forward(request: Request, url: URL): Promise<Response> {
   if (!conf) return new Response('Not found', { status: 404 });
   if (request.method !== conf.method) return new Response('Method Not Allowed', { status: 405 });
 
-  // build path+query (without op)
   const search = new URLSearchParams(url.searchParams);
   search.delete('op');
   const qs   = search.toString();
   const path = conf.backend + (qs ? `?${qs}` : '');
   const target = new URL(path, apiBase).toString();
 
-  // headers (don’t log apiKey)
   const headers = new Headers();
   if (apiKey) headers.set('X-Api-Key', apiKey);
   const auth = request.headers.get('authorization'); if (auth) headers.set('authorization', auth);
@@ -67,14 +65,14 @@ async function forward(request: Request, url: URL): Promise<Response> {
     out.headers.set('Cache-Control', 'no-store');
     return out;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e:any) {
-    const ms = Date.now() - t0;
-    console.error(`[eventlink-proxy] error op=${op} ms=${ms} trace=${t} err=${e?.message} target-url=${target}`);
-    return new Response(JSON.stringify({ error:'Upstream fetch failed', trace:t, message:String(e?.message||e) }), {
-      status: 502,
-      headers: { 'content-type':'application/json', 'X-Proxy':'sveltekit', 'X-Proxy-Trace':t, 'X-Proxy-Duration': String(ms) }
-    });
-  }
+  } catch (err: any) {
+  const ms = Date.now() - t0;
+  const code = err?.code || err?.cause?.code || 'unknown';
+  console.error(`[eventlink-proxy] error op=${op} ms=${ms} trace=${t} code=${code} msg=${err?.message} target-url=${target}`);
+  return new Response(JSON.stringify({ error:'Upstream fetch failed', trace:t, code, message:String(err?.message||err) }), {
+    status: 502, headers: { 'content-type':'application/json' }
+        });
+    }
 }
 
 export const GET: RequestHandler    = ({ request, url }) => forward(request, url);

@@ -24,6 +24,13 @@ ENV APIKEY_PEPPER="$APIKEY_PEPPER"
 
 # Copy source and build
 COPY . .
+
+# Inject commit/time coming from CI
+ARG COMMIT_SHA=unknown
+ARG BUILD_TIME
+ENV COMMIT_SHA=$COMMIT_SHA
+ENV BUILD_TIME=$BUILD_TIME
+
 RUN npm run build
 
 # -----------------------------
