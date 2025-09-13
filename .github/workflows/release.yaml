@@ -37,7 +37,6 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest
-
       - name: Set build time (UTC)
         id: bt
         run: echo "time=$(date -u +%FT%TZ)" >> $GITHUB_OUTPUT
