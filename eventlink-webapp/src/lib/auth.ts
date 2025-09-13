@@ -4,7 +4,7 @@ import { generateCodeChallenge, generateCodeVerifier } from './pcke';
 
 const EXTENSION_ID = 'llmhmmabbnehnlkmgpkccmedfpijkhhc';
 const LOCAL_UNITY_API = '/unity-proxy';
-const EVENTLINK_PROXY = '/api/eventlink';
+const EVENTLINK_PROXY = '/eventlink-proxy';
 
 export async function requestCookiesFromExtension(): Promise<chrome.cookies.Cookie[]> {
 	return new Promise((resolve, reject) => {

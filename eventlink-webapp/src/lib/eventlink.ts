@@ -1,4 +1,4 @@
-const BACKEND_URL = '/api/eventlink'; 
+const BACKEND_URL = '/eventlink-proxy'; 
 
 /** Fetch calendar for a given date and store */
 export async function fetchCalendarEvents(date: string, store: string, cookies: chrome.cookies.Cookie[]) {

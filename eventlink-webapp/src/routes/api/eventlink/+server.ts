@@ -8,16 +8,20 @@ const ROUTES: Record<string, { method: 'GET'|'POST'|'PATCH'|'PUT'|'DELETE'; back
 };
 
 async function forward(request: Request, url: URL): Promise<Response> {
+  console.log('hitting the forward')
+  const testbase = "http://localhost:4000";
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const dddd =  API_BASE_EVENTLINK;
   const op = url.searchParams.get('op');
   if (!op) return new Response('Missing ?op=', { status: 400 });
   const conf = ROUTES[op];
   if (!conf) return new Response('Not found', { status: 404 });
   if (request.method !== conf.method) return new Response('Method Not Allowed', { status: 405 });
-
+  
   const sp = new URLSearchParams(url.searchParams);
   sp.delete('op'); 
   const qs = sp.toString();
-  const target = `${API_BASE_EVENTLINK}${conf.backend}${qs ? `?${qs}` : ''}`;
+  const target = `${testbase}${conf.backend}${qs ? `?${qs}` : ''}`;
 
   const headers = new Headers();
   headers.set('X-Api-Key', API_KEY_EVENTLINK);
@@ -25,6 +29,8 @@ async function forward(request: Request, url: URL): Promise<Response> {
   if (cookiesHdr) headers.set('x-eventlink-cookies', cookiesHdr);
   const ct = request.headers.get('content-type');
   if (ct) headers.set('content-type', ct);
+  console.log(headers, target)
+  console.log(target)
 
   const resp = await fetch(target, { method: conf.method, headers });
   const text = await resp.text();
