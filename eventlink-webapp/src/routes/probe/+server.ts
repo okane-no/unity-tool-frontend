@@ -1,7 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
-import { API_BASE_UNITY, API_KEY_UNITY } from '$env/static/private';
 
 export const GET: RequestHandler = async (event) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

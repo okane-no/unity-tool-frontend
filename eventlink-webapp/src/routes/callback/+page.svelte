@@ -15,7 +15,7 @@
     try {
       console.log("Trying to exhange codes")
       // 🔒 Call SvelteKit proxy; it adds X-Api-Key and forwards to /api/unity-oauth/exchange-code
-      const res = await fetch('/api/unity?op=oauth.exchange', {
+      const res = await fetch('/unity-proxy?op=oauth.exchange', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, verifier })
