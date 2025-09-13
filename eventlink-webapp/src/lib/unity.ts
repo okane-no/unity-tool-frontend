@@ -1,4 +1,4 @@
-const LOCAL_UNITY_API = '/api/unity'; // hits SvelteKit server, which forwards to .NET
+const LOCAL_UNITY_API = '/unity-proxy';// hits SvelteKit server, which forwards to .NET'
 
 function getBearer(): string {
   const token = localStorage.getItem('unity_access_token');
