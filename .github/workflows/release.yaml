@@ -37,7 +37,10 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest
-
+      - name: Set build time (UTC)
+        id: bt
+        run: echo "time=$(date -u +%FT%TZ)" >> $GITHUB_OUTPUT
+        
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -53,6 +56,8 @@ jobs:
             API_KEY_EVENTLINK=${{ secrets.API_KEY_EVENTLINK }}
             API_BASE_UNITY=${{ secrets.API_BASE_UNITY }}
             API_KEY_UNITY=${{ secrets.API_KEY_UNITY }}
+            COMMIT_SHA=${{ github.sha }}
+            BUILD_TIME=${{ steps.bt.outputs.time }}
 
       - name: Deploy to k3s Cluster
         env:
