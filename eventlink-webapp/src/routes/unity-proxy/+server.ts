@@ -18,7 +18,9 @@ function traceId() {
 }
 
 async function forward(request: Request, url: URL): Promise<Response> {
-  
+  const basetest="http://unity-tool-backend.unity-tool-prod.svc.cluster.local:80";
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const sds = API_BASE_UNITY;
   const op = url.searchParams.get('op');
   if (!op) return new Response('Missing ?op=', { status: 400 });
 
@@ -40,7 +42,7 @@ async function forward(request: Request, url: URL): Promise<Response> {
   const hasBody = conf.method !== 'GET';
   if (hasBody) headers.set('content-type', request.headers.get('content-type') ?? 'application/json');
 
-  const target = `${API_BASE_UNITY}${path}`;
+  const target = `${basetest}${path}`;
   const t = traceId();
   const t0 = Date.now();
 
