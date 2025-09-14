@@ -1,21 +1,46 @@
-MIT License
+Okane View-Only Source License 1.0 (OVL-1.0)
 
-Copyright (c) 2025 Okane
+Licensor: Okane
+Licensed Work: Okane — Eventlink → Unity Sync Frontend (this repository)
+Effective Date: 2025-09-14
+Copyright © 2025 Okane. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Definitions
+“Licensed Work” means the source code and other content in this repository.
+“You” means any person or entity accessing the Licensed Work.
+“Production Use” means use to process real (non-test) data, or any use to provide a product or service to third parties (including hosting, SaaS, or internal systems relied on by end users other than for evaluation or testing).
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+2. Grant
+Subject to this License, Licensor grants You a limited, revocable, non-exclusive, non-transferable license to:
+  (a) view and read the Licensed Work; and
+  (b) compile and run **unmodified** copies locally solely for evaluation, security review, or internal testing.
+No other rights are granted. No patent rights are granted.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+3. Restrictions
+You must not:
+  (a) engage in Production Use;
+  (b) copy, distribute, publish, sublicense, host, or otherwise make available the Licensed Work or any part of it to any third party;
+  (c) create, modify, merge, or distribute derivative works;
+  (d) remove or alter copyright, trademark, or attribution notices; or
+  (e) use the Licensed Work to train models or datasets.
+
+4. Feedback
+If You provide feedback, You grant Licensor a worldwide, royalty-free, irrevocable license to use it without restriction.
+
+5. Reservation of Rights; Trademarks
+All rights not expressly granted are reserved by Licensor. Nothing in this License grants any rights in Licensor’s trademarks, service marks, names, or logos.
+
+6. Term & Termination
+This License terminates automatically if You breach it. Upon termination, You must cease all use and destroy any copies. Licensor may modify or replace this License for future versions at any time.
+
+7. Disclaimer of Warranty
+THE LICENSED WORK IS PROVIDED “AS IS” WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+
+8. Limitation of Liability
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, LICENSOR IS NOT LIABLE FOR ANY INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES.
+
+9. Governing Law; Venue
+This License is governed by the laws of Norway, excluding conflict-of-law rules. Venue and jurisdiction: Oslo, Norway.
+
+10. Severability; No Waiver; Entire Agreement
+If any provision is unenforceable, the remainder remains in effect. Failure to enforce is not a waiver. This License is the entire agreement regarding the Licensed Work.
