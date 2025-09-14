@@ -15,14 +15,14 @@
 
 <main class="mx-auto max-w-3xl px-4 py-8">
   <header class="mb-6">
-    <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Privacy Policy</h1>
-    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+    <h1 class="text-2xl font-bold text-zinc-900 ">Privacy Policy</h1>
+    <p class="mt-1 text-sm text-zinc-600 ">
       <span class="mr-2">Product:</span><span class="font-medium">{PRODUCT_NAME}</span><br />
       <span class="mr-2">Effective date:</span>{EFFECTIVE_DATE} · <span class="mr-2">Version:</span>{VERSION}
     </p>
   </header>
 
-  <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 shadow-sm">
+  <div class="rounded-2xl border border-zinc-200  bg-white/70  shadow-sm">
     <div class="p-5 md:p-6 space-y-6 text-sm leading-6 text-zinc-800 dark:text-zinc-200">
 
       <section>
@@ -172,7 +172,7 @@
   </div>
 
   <div class="mt-6 flex items-center justify-end">
-    <a href="/" class="text-sm text-zinc-600 dark:text-zinc-300 underline decoration-dotted underline-offset-4">
+    <a href="/" class="text-sm text-zinc-600 underline decoration-dotted underline-offset-4">
       ← Back to app
     </a>
   </div>

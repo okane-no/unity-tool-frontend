@@ -591,6 +591,11 @@ onMount(async () => {
 
 </script>
 
+<svelte:head>
+  <title>Eventlink → Unity Sync</title>
+  <meta name="description" content="Sync Eventlink results from Wizards Eventlink to Unity League." />
+</svelte:head>
+
 {#if showToast}
   <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50">
     <div class="px-4 py-2 rounded shadow text-white" class:bg-green-600={toastType === 'success'} class:bg-red-600={toastType === 'error'}>
