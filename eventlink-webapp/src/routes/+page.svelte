@@ -110,7 +110,7 @@
 
   const CHROME_STORE_URL = "https://chromewebstore.google.com/detail/<your-extension>/<store-id>";
   const GITHUB_FRONTEND_URL = "https://github.com/okane-no/unity-tool-frontend";
-  const GITHUB_EXTENSION_URL = "https://https://github.com/okane-no/unity-tool-extension";
+  const GITHUB_EXTENSION_URL = "https://github.com/okane-no/unity-tool-extension";
   const TOS_VERSION = "2025-09-08";
   const TOS_COOKIE  = `okane_tos_${TOS_VERSION}`;
   const HEADER_OFFSET = 96;   
