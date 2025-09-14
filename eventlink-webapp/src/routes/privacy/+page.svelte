@@ -23,7 +23,7 @@
   </header>
 
   <div class="rounded-2xl border border-zinc-200  bg-white/70  shadow-sm">
-    <div class="p-5 md:p-6 space-y-6 text-sm leading-6 text-zinc-800 dark:text-zinc-200">
+    <div class="p-5 md:p-6 space-y-6 text-sm leading-6 text-zinc-800 ">
 
       <section>
         <p>
