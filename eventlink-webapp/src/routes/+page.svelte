@@ -829,7 +829,7 @@ onMount(async () => {
                   />
               </label>
               <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            <span class="font-semibold">NB:</span> Current patch only finds events from <span class="font-medium"> this month</span>.
+            <span class="font-semibold">NB:</span> For now, event search is limited to the <span class="font-medium"> current calendar month</span>.
           </div>
               <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 disabled:opacity-50" on:click={fetchEventlinkEvents} disabled={loadingEvents}>
 				{#if loadingEvents}
