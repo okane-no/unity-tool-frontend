@@ -116,6 +116,7 @@
   const HEADER_OFFSET = 96;   
   const SLIDE_MS = 400;   
   let tosAccepted = false;
+  let triedToVerify = false
 
   // Published Web Store ID (stable in prod)
   const STORE_EXTENSION_ID = (import.meta as any).env?.VITE_OKANE_STORE_ID ?? "llmhmmabbnehnlkmgpkccmedfpijkhhc";
@@ -155,14 +156,17 @@
   const handleVerifyStore = async () => {
     verifyingStore = true;
     loadingEventlinkCookies = true;
+    triedToVerify = false
     try {
       await CheckEventlinkCookie();
       if (loggedeventlink) {
         eventlinkLoggedIn = true;
+        triedToVerify = false
       } else {
         eventlinkLoggedIn = false;
         eventlinkStoreId = null;
         loggedeventlink = false
+        triedToVerify = true
         showToastMessage('Store not found. Please login to Eventlink and retry.', 'error');
       }
     } catch (e) {
@@ -790,8 +794,14 @@ onMount(async () => {
                 <p>Store ID: {eventlinkStoreId}</p>
               {/if}
             {:else}
-              <p>❌ No verified StoreID</p>
-              <p>Start by clicking Verify below. If it doesn’t work, open eventlink.wizards.com, log in, then come back and try Verify again.</p>
+              {#if triedToVerify}
+                <p>Could not verify. Please open a new tab and log into WOTC eventlink. Then try again.</p>
+                {:else}
+                <p>❌ No verified StoreID</p>
+              <p>Start by clicking Verify StoreID button</p>
+              {/if}
+
+              
               <button class="bg-blue-600 text-white px-4 py-2 rounded  hover:bg-blue-700 disabled:opacity-50" on:click={handleVerifyStore} disabled={loadingEventlinkCookies}>
 				    {#if loadingEventlinkCookies}
 					<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
