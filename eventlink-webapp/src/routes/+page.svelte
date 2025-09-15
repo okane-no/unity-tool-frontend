@@ -448,7 +448,7 @@ function buildUnityEvent(): UnityEvent {
 		window.location.reload();
 	}
 
-
+let loadingUnityVerify = false
 
 onMount(async () => {
     if (browser) tosAccepted = getCookie(TOS_COOKIE) === "1";
@@ -459,17 +459,21 @@ onMount(async () => {
 		const tokenUnity = localStorage.getItem('unity_access_token');
 		if (!tokenUnity) return;
 		try {
+      loadingUnityVerify = true;
 			const result = await verifyUnityAccessToken(tokenUnity);
 			unityLoggedIn = true;
 			userInfo = result;
       user.set(userInfo);
 			loggedIn.set(true);
 			console.log('✅ Verified login:', result);
+      loadingUnityVerify = false;
 		} catch (err) {
 			error = 'Invalid or expired token';
 			localStorage.removeItem('unity_access_token');
+      loadingUnityVerify = false
 			user.set(null);
 			loggedIn.set(false);
+
 		}
 	});
 
@@ -757,7 +761,10 @@ onMount(async () => {
 </div>
           {:else if stepId === 1}
             {#if unityLoggedIn}
-              <div class="max-w-xl rounded-2xl border border-zinc-200  bg-white/70 shadow-sm p-5">
+              {#if !loadingUnityVerify}
+                
+
+                <div class="max-w-xl rounded-2xl border border-zinc-200  bg-white/70 shadow-sm p-5">
                 <div class="flex items-start gap-4">
                   <div class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center text-base font-semibold shadow">
                     {(() => {
@@ -785,6 +792,17 @@ onMount(async () => {
                 </div>
               </div>
               <button class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 disabled:opacity-50" on:click={logoutWithUnityLeague}>Logout</button>
+             
+              {:else}
+
+
+                <!-- svelte-ignore a11y_consider_explicit_label -->
+                <button class="bg-blue-600 text-white px-4 py-2 rounded  hover:bg-blue-700 disabled:opacity-50" on:click={handleUnityLogin} disabled={loadingUnityVerify}>
+					    <svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+				      </button>
+              
+            {/if}
+              
             {:else}
               <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50" on:click={handleUnityLogin}>Login to Unity</button>
             {/if}
