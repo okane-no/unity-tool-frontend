@@ -9,7 +9,7 @@ metadata:
   name: unity-tool-frontend
   namespace: unity-tool-prod
 spec:
-  replicas: 1
+  replicas: 2  # avoid cold starts
   selector:
     matchLabels:
       app: unity-tool-frontend
@@ -19,11 +19,11 @@ spec:
         app: unity-tool-frontend
     spec:
       containers:
-      - name: unity-tool-frontend
-        image: ghcr.io/okane-no/unity-tool-frontend:latest
-        ports:
-        - containerPort: 3000
-        imagePullPolicy: Always
+        - name: unity-tool-frontend
+          image: ghcr.io/okane-no/unity-tool-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
       imagePullSecrets:
         - name: ghcr-login-secret
 ---
@@ -41,38 +41,77 @@ spec:
       targetPort: 3000
   type: ClusterIP
 ---
+# Single cert covering BOTH hosts (SANs) so we can reuse the same secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: unity-tool-frontend-cert
+  namespace: unity-tool-prod
+spec:
+  secretName: unity-tool-frontend-tls
+  issuerRef:
+    name: letsencrypt-certificate
+    kind: ClusterIssuer
+  dnsNames:
+    - eventlinktounity.com
+    - www.eventlinktounity.com
+---
+# Serve the site on CANONICAL host: www.eventlinktounity.com
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: unity-tool-frontend-ingress
+  name: unity-tool-frontend-www
   namespace: unity-tool-prod
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-certificate"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"   # http -> https
+    # Optional: cache headers for static assets (remove if you set them in app)
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($request_uri ~* \.(js|css|woff2|ico|png|jpg|jpeg|svg)$) {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+      }
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - www.eventlinktounity.com
+      secretName: unity-tool-frontend-tls
   rules:
-  - host: eventlinktounity.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: unity-tool-frontend
-            port:
-              number: 80
-  - host: www.eventlinktounity.com  # Added rule for www.eventlinktounity.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: unity-tool-frontend
-            port:
-              number: 80
-  tls: 
-  - hosts:
-    - eventlinktounity.com
-    - www.eventlinktounity.com
-    secretName: unity-tool-frontend-tls
+    - host: www.eventlinktounity.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: unity-tool-frontend
+                port:
+                  number: 80
+---
+# Redirect EVERYTHING from apex -> www (single immediate 308)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: redirect-apex-to-www
+  namespace: unity-tool-prod
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-certificate"
+    nginx.ingress.kubernetes.io/permanent-redirect: https://www.eventlinktounity.com$request_uri
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - eventlinktounity.com
+      secretName: unity-tool-frontend-tls   # reuse the same cert
+  rules:
+    - host: eventlinktounity.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              # never reached (redirect happens at ingress), but required by API
+              service:
+                name: unity-tool-frontend
+                port:
+                  number: 80
