@@ -899,25 +899,60 @@ onMount(async () => {
             </div>
 
           {:else if stepId === 5}
-            <input class="w-full border rounded px-2 py-1" type="text" placeholder="Event Name" bind:value={unityName} />
-            <input class="w-full border rounded px-2 py-1" type="date" bind:value={unityDate} />
-            <input class="w-full border rounded px-2 py-1" type="time" placeholder="Start Time" bind:value={unityStartTime} />
-            <input class="w-full border rounded px-2 py-1" type="time" placeholder="End Time" bind:value={unityEndTime} />
-            <select class="w-full border rounded px-2 py-1" bind:value={unityFormat}>
-              <option value="STANDARD">Standard</option>
-              <option value="MODERN">Modern</option>
-              <option value="PIONEER">Pioneer</option>
-              <option value="LEGACY">Legacy</option>
-              <option value="COMMANDER">Commander</option>
-            </select>
-            <select class="w-full border rounded px-2 py-1" bind:value={unityCategory}>
-              <option value="LOCAL">Local</option>
-              <option value="REGIONAL">Regional</option>
-              <option value="NATIONAL">National</option>
-            </select>
-            <input class="w-full border rounded px-2 py-1" type="text" placeholder="Website URL (optional)" bind:value={unityUrl} />
-            <textarea class="w-full border rounded px-2 py-1" rows="3" placeholder="Description" bind:value={unityDescription} />
-            <h4 class="font-semibold">Standings</h4>
+  <div class="space-y-3">
+    <div>
+      <label for="unityName" class="block text-sm font-medium text-zinc-700">Event Name<span class="text-red-500">*</span></label>
+      <input id="unityName" class="w-full border rounded px-2 py-1" type="text" placeholder="Event Name" bind:value={unityName} required />
+    </div>
+
+    <div>
+      <label for="unityDate" class="block text-sm font-medium text-zinc-700">Date<span class="text-red-500">*</span></label>
+      <input id="unityDate" class="w-full border rounded px-2 py-1" type="date" bind:value={unityDate} required />
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <label for="unityStartTime" class="block text-sm font-medium text-zinc-700">Start Time<span class="text-red-500">*</span></label>
+        <input id="unityStartTime" class="w-full border rounded px-2 py-1" type="time" placeholder="Start Time" bind:value={unityStartTime} required />
+      </div>
+      <div>
+        <label for="unityEndTime" class="block text-sm font-medium text-zinc-700">End Time</label>
+        <input id="unityEndTime" class="w-full border rounded px-2 py-1" type="time" placeholder="End Time" bind:value={unityEndTime} />
+      </div>
+    </div>
+
+    <div>
+      <label for="unityFormat" class="block text-sm font-medium text-zinc-700">Format<span class="text-red-500">*</span></label>
+      <select id="unityFormat" class="w-full border rounded px-2 py-1" bind:value={unityFormat} required>
+        <option value="STANDARD">Standard</option>
+        <option value="MODERN">Modern</option>
+        <option value="PIONEER">Pioneer</option>
+        <option value="LEGACY">Legacy</option>
+        <option value="COMMANDER">Commander</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="unityCategory" class="block text-sm font-medium text-zinc-700">Category<span class="text-red-500">*</span></label>
+      <select id="unityCategory" class="w-full border rounded px-2 py-1" bind:value={unityCategory} required>
+        <option value="LOCAL">Local</option>
+        <option value="REGIONAL">Regional</option>
+        <option value="NATIONAL">National</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="unityUrl" class="block text-sm font-medium text-zinc-700">Website URL <span class="text-zinc-400">(optional)</span></label>
+      <input id="unityUrl" class="w-full border rounded px-2 py-1" type="text" placeholder="https://example.com" bind:value={unityUrl} inputmode="url" />
+    </div>
+
+    <div>
+      <label for="unityDescription" class="block text-sm font-medium text-zinc-700">Description</label>
+      <textarea id="unityDescription" class="w-full border rounded px-2 py-1" rows="3" placeholder="Describe the event…" bind:value={unityDescription} />
+    </div>
+
+    <h4 class="font-semibold">Standings</h4>
+  </div>
 
 <div class="flex items-center gap-4 mb-2">
   <label class="flex items-center gap-2">
