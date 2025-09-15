@@ -2,7 +2,7 @@ import { browser } from '$app/environment';
 import { generateCodeChallenge, generateCodeVerifier } from './pcke';
 
 
-const EXTENSION_ID = 'llmhmmabbnehnlkmgpkccmedfpijkhhc';
+const EXTENSION_ID = 'acmbpjefmlanbipgfjckllmpmhjoooep';
 const LOCAL_UNITY_API = '/unity-proxy';
 const EVENTLINK_PROXY = '/eventlink-proxy';
 

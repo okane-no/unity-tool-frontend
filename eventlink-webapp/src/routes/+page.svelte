@@ -108,7 +108,7 @@
   let useTopCut = false;
   let topCutSize = 4;
 
-  const CHROME_STORE_URL = "https://chromewebstore.google.com/detail/<your-extension>/<store-id>";
+  const CHROME_STORE_URL = "https://chromewebstore.google.com/detail/eventlink-%E2%86%92-unity-sync-he/acmbpjefmlanbipgfjckllmpmhjoooep";
   const GITHUB_FRONTEND_URL = "https://github.com/okane-no/unity-tool-frontend";
   const GITHUB_EXTENSION_URL = "https://github.com/okane-no/unity-tool-extension";
   const TOS_VERSION = "2025-09-08";
@@ -119,7 +119,7 @@
   let triedToVerify = false
 
   // Published Web Store ID (stable in prod)
-  const STORE_EXTENSION_ID = (import.meta as any).env?.VITE_OKANE_STORE_ID ?? "llmhmmabbnehnlkmgpkccmedfpijkhhc";
+  const STORE_EXTENSION_ID = (import.meta as any).env?.VITE_OKANE_STORE_ID ?? "acmbpjefmlanbipgfjckllmpmhjoooep";
 
   let extInstalled = false;
   let checking = false;
