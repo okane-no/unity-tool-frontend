@@ -96,7 +96,7 @@ export async function startUnityOAuthLogin() {
 
   localStorage.setItem('unity_pkce_verifier', verifier);
 
-  const redirectUri = `${window.location.origin}/callback`;
+  const redirectUri = 'https://www.eventlinktounity.com/callback';;
 
   const params = new URLSearchParams({
     client_id: 'skCMSme75PCnF2wqePonMCk3UWoswiYkpOk2zFC1',
