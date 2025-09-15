@@ -591,7 +591,12 @@ onMount(async () => {
   // Optional: clear/clamp if user somehow sets a date outside the month
   $: if (selectedDate && (selectedDate < minDate || selectedDate > maxDate)) {
     selectedDate = minDate;
-    searchedForEvent = false
+    
+  }
+
+   $: if (selectedDate) {
+    searchedForEvent = false;
+    
   }
 
 </script>
