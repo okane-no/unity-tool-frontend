@@ -19,11 +19,11 @@ spec:
         app: unity-tool-frontend
     spec:
       containers:
-        - name: unity-tool-frontend
-          image: ghcr.io/okane-no/unity-tool-frontend:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 3000
+      - name: unity-tool-frontend
+        image: ghcr.io/okane-no/unity-tool-frontend:latest
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always
       imagePullSecrets:
         - name: ghcr-login-secret
 ---
@@ -44,38 +44,35 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: unity-tool-frontend
+  name: unity-tool-frontend-ingress
   namespace: unity-tool-prod
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-certificate"
-    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/permanent-redirect-code: "308"
 spec:
   ingressClassName: nginx
-  tls:
-    - hosts:
-        - eventlinktounity.com
-        - www.eventlinktounity.com
-      secretName: unity-tool-frontend-tls
   rules:
-    - host: eventlinktounity.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: unity-tool-frontend
-                port:
-                  number: 80
-    - host: www.eventlinktounity.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: unity-tool-frontend
-                port:
-                  number: 80
+  - host: eventlinktounity.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unity-tool-frontend
+            port:
+              number: 80
+  - host: www.eventlinktounity.com  # Added rule for www.eventlinktounity.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unity-tool-frontend
+            port:
+              number: 80
+  tls: 
+  - hosts:
+    - eventlinktounity.com
+    - www.eventlinktounity.com
+    secretName: unity-tool-frontend-tls
