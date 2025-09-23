@@ -25,10 +25,8 @@
   let uploadSuccess = false;
 
   let unityTarget: 'new' | 'existing' = 'new';
-  type UnityFormat = 'STANDARD' | 'MODERN' | 'PIONEER' | 'LEGACY' | 'COMMANDER';
+  type UnityFormat = 'STANDARD' | 'MODERN' | 'PIONEER' | 'LEGACY' | 'COMMANDER' | 'PREMODERN' | 'VINTAGE' | 'OLDSCHOOL' | 'OTHER' | 'PAUPER';
   type UnityCategory = 'LOCAL' | 'REGIONAL' | 'NATIONAL';
-
-  
 
   let selectedDate = '';
 
@@ -945,6 +943,11 @@ onMount(async () => {
         <option value="PIONEER">Pioneer</option>
         <option value="LEGACY">Legacy</option>
         <option value="COMMANDER">Commander</option>
+        <option value="PAUPER">Pauper</option>
+        <option value="PREMODERN">Premodern</option>
+        <option value="VINTAGE">Vintage</option>
+        <option value="OLDSCHOOL">Old School</option>
+        <option value="OTHER">Other</option>
       </select>
     </div>
 
@@ -952,8 +955,6 @@ onMount(async () => {
       <label for="unityCategory" class="block text-sm font-medium text-zinc-700">Category<span class="text-red-500">*</span></label>
       <select id="unityCategory" class="w-full border rounded px-2 py-1" bind:value={unityCategory} required>
         <option value="LOCAL">Local</option>
-        <option value="REGIONAL">Regional</option>
-        <option value="NATIONAL">National</option>
       </select>
     </div>
 
