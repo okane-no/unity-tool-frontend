@@ -141,6 +141,7 @@
 
   async function CheckEventlinkCookie() {
 		try {
+      console.log('check event link coockies')
 			error = null;
 			storeid = await getStoreId();
       eventlinkStoreId = storeid;
@@ -198,7 +199,7 @@ const fetchEventlinkEvents = async () => {
 
 async function getCalender() {
 		try {
-      console.log(await getEventsNeedingResults())
+      //console.log(await getEventsNeedingResults())
 			const cookies = await requestCookiesFromExtension();
       if(eventlinkStoreId == null){
         throw error;
@@ -213,13 +214,21 @@ async function getCalender() {
 		}
 	}
 
-  const loadMyUnityEvents = () => {
-    unityEvents = [
-      { name: 'Legacy Cup', date: '2025-07-01', api_url: 'unity-1' },
-      { name: 'Summer Standard Showdown', date: '2025-07-15', api_url: 'unity-2'}
-    ];
-    showToastMessage('Loaded your Unity events', 'success');
-  };
+const loadMyUnityEvents = async () => {
+
+  try {
+			error = null;
+      const createEventResult = await getEventsNeedingResults();
+      console.log(createEventResult)
+
+		} catch (err: any) {
+			error = err.message;
+      showToastMessage('Failed to fetch Unity events!', 'error');
+			console.error(err);
+		}
+
+  
+};
 
 const handlePushToUnity = async () => {
 
@@ -795,6 +804,7 @@ onMount(async () => {
               {:else}
 
               <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50" on:click={handleUnityLogin}>Login to Unity</button>
+              <button class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 disabled:opacity-50" on:click={handleVerifyStore}>Logout</button>
               {/if}
               {:else}
               <p>✅ Loading unity details.</p>
@@ -884,7 +894,7 @@ onMount(async () => {
               ❌ No events found at {selectedDate}
               {/if}
             {:else}
-              <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700 disabled:opacity-25" disabled={true} on:click={loadMyUnityEvents}>Load My Events</button>
+              <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700 disabled:opacity-25" disabled={false} on:click={loadMyUnityEvents}>Load My Events</button>
               <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
             <span class="font-semibold">NB:</span> Will be active in next patch.
           </div>

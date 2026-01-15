@@ -54,10 +54,10 @@ async function sendTokenToBackend(token: string): Promise<any> {
 
 export async function handleAuthFlow() {
 	try {
+		console.log('trying to verify')
 		const cookies = await requestCookiesFromExtension();
 		const token = extractClientAuthToken(cookies);
 		const userInfo = await sendTokenToBackend(token);
-
 		// Optionally store userInfo somewhere or emit event
 		return userInfo;
 	} catch (err) {
@@ -69,7 +69,7 @@ export async function handleAuthFlow() {
 export async function getStoreId() {
   try {
     const cookies = await requestCookiesFromExtension();
-
+	console.log(cookies)
     const res = await fetch(`${EVENTLINK_PROXY}?op=verify`, {
       method: 'GET',
       headers: {
@@ -79,6 +79,7 @@ export async function getStoreId() {
     });
 
     const text = await res.text();
+	console.log(text)
     if (!res.ok) throw new Error(text || 'Auth verification failed');
 
     const data = JSON.parse(text); // { storeId: string, ... }
