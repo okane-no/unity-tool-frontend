@@ -65,6 +65,20 @@
     description?: string;   // optional
   };
 
+  interface UnityEventLoaded {
+  api_url: string;
+  name: string;
+  date: string;
+  start_time: string;
+  end_time: string | null;
+  format: string;
+  category: string;
+  url: string | null;
+  description: string;
+  organizer: string;
+  results: unknown[]; // or a stricter type later
+}
+
   type RawStanding = {
     rank: string;
     name: string;
@@ -87,7 +101,7 @@
 
   let eventlinkEvents: EventlinkEvent[] = [];
   let selectedEventlinkEvent: DetailedEventlinkEvent | null;
-  let unityEvents: { name: string; date: string; api_url: string }[] = [];
+  let unityEvents: UnityEventLoaded[] = [];
   let selectedUnityEvent = '';
   let searchedForEvent = false
 
@@ -96,7 +110,7 @@
   let unityStartTime = '';
   let unityEndTime = '';
   let unityFormat = 'STANDARD';
-  let unityCategory = 'LOCAL';
+  let unityCategory = 'REGULAR';
   let unityUrl = '';
   let unityDescription = 'A event created from okane eventlink tool.';
 
@@ -199,7 +213,6 @@ const fetchEventlinkEvents = async () => {
 
 async function getCalender() {
 		try {
-      //console.log(await getEventsNeedingResults())
 			const cookies = await requestCookiesFromExtension();
       if(eventlinkStoreId == null){
         throw error;
@@ -218,8 +231,9 @@ const loadMyUnityEvents = async () => {
 
   try {
 			error = null;
-      const createEventResult = await getEventsNeedingResults();
-      console.log(createEventResult)
+      const FetchedUnityEvents = await getEventsNeedingResults();
+      console.log(FetchedUnityEvents)
+      unityEvents = FetchedUnityEvents
 
 		} catch (err: any) {
 			error = err.message;
@@ -263,6 +277,7 @@ function resetToStep3() {
   loadingEvents = false;       
   eventlinkEvents = [];
   selectedEventlinkEvent = null;
+  selectedUnityEvent = ''
   eventlinkStandings = [];
   fetchedEventlinkStandingsData = []
   loadingStep5 = false;
@@ -296,23 +311,21 @@ const handleNextToStep5 = async () => {
         throw error;
       }
       try{
-      const cookies = await requestCookiesFromExtension();
-			const eventUrl = selectedEventlinkEvent.url;
-			const result = await fetchEventDetails(eventUrl, eventlinkStoreId, cookies);
-      selectedEventlinkEvent = result.data[0];
-      fetchedEventlinkStandingsData = result.data[1][0];
-      eventlinkStandings = toEventlinkStandings(fetchedEventlinkStandingsData);
-      showToastMessage('Fetched details for ' + selectedEventlinkEvent?.title, 'success');
+        const cookies = await requestCookiesFromExtension();
+        const eventUrl = selectedEventlinkEvent.url;
+        const result = await fetchEventDetails(eventUrl, eventlinkStoreId, cookies);
+        selectedEventlinkEvent = result.data[0];
+        fetchedEventlinkStandingsData = result.data[1][0];
+        eventlinkStandings = toEventlinkStandings(fetchedEventlinkStandingsData);
+        showToastMessage('Fetched details for ' + selectedEventlinkEvent?.title, 'success');
       }
       catch{
         loadingStep5 = false;
         showToastMessage('Failed to fetch details for ' + selectedEventlinkEvent?.title, 'error');
       }
-      
-		}
-
+  }
     goTo(5)
-  //currentStep = 5;
+    //currentStep = 5;
   
 };
 
@@ -613,6 +626,21 @@ onMount(async () => {
     
   }
 
+  $: selectedUnityEventData =
+  unityEvents.find(e => e.api_url === selectedUnityEvent) ?? null;
+  
+  function checkDisabledStep3(unityTarget: string, selectedevent: any): boolean {
+    if(unityTarget == "new"){
+      return false
+    }
+    if(selectedevent.length > 0){
+      return false
+    }
+    return true
+  }
+
+  
+
 </script>
 
 <svelte:head>
@@ -848,9 +876,28 @@ onMount(async () => {
           {:else if stepId === 3}
             <label><input type="radio" bind:group={unityTarget} value="new" /> Create new Unity event</label>
             <label><input type="radio" bind:group={unityTarget} value="existing" /> Use existing Unity event</label>
+            {#if unityTarget == "existing"}
+                 <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700 disabled:opacity-25" disabled={false} on:click={loadMyUnityEvents}>Load My Unity Events</button>
+              {#if unityEvents.length > 0}
+                <label class="block">
+                  Choose Unity Event:
+                  <select
+                    class="w-full border rounded px-2 py-1"
+                    bind:value={selectedUnityEvent}
+                  >
+                    <option value="" disabled>-- Select event --</option>
+                    {#each unityEvents as event}
+                      <option value={event.api_url}>
+                        {event.name} — {event.date} {event.start_time.slice(0,5)}
+                      </option>
+                    {/each}
+                  </select>
+                </label>
+              {/if}
+            {/if}
             <div class="flex gap-2">
               <button class="bg-gray-300 px-4 py-2 rounded mt-4 hover:bg-gray-400" on:click={() => currentStep = 2}>Back</button>
-              <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 disabled:opacity-50" on:click={() => currentStep = 4} disabled={!unityTarget}>Next</button>
+              <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 disabled:opacity-50" on:click={() => currentStep = 4} disabled={checkDisabledStep3(unityTarget, selectedUnityEvent) }>Next</button>
             </div>
 
           {:else if stepId === 4}
@@ -874,10 +921,8 @@ onMount(async () => {
 				{#if loadingEvents}
 					<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
 				{:else}
-					Fetch Eventlink Events
-          
+					Fetch Eventlink Events         
 				{/if}
-
 				</button>
               {#if eventlinkEvents.length > 0}
                 <label>
@@ -893,37 +938,19 @@ onMount(async () => {
               {#if eventlinkEvents.length == 0 && searchedForEvent}
               ❌ No events found at {selectedDate}
               {/if}
-            {:else}
-              <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700 disabled:opacity-25" disabled={false} on:click={loadMyUnityEvents}>Load My Events</button>
-              <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            <span class="font-semibold">NB:</span> Will be active in next patch.
-          </div>
-              
-              
-              {#if unityEvents.length > 0}
-                <label>
-                  Choose Unity Event:
-                  <select class="w-full border rounded px-2 py-1" disabled={true} bind:value={selectedUnityEvent}>
-                    <option value="" disabled>-- Select event --</option>
-                    {#each unityEvents as event}
-                      <option value={event.api_url}>{event.name} - {event.date}</option>
-                    {/each}
-                  </select>
-                </label>
-              {/if}
             {/if}
             <div class="flex gap-2">
               <button class="bg-gray-300 px-4 py-2 rounded mt-2 hover:bg-gray-400" on:click={() => currentStep = 3}>Back</button>
-              <button class="bg-blue-600 text-white px-4 py-2 mt-2 rounded hover:bg-blue-700 disabled:opacity-50" on:click={handleNextToStep5} disabled={!selectedEventlinkEvent && !selectedUnityEvent || loadingStep5}>
-  {#if loadingStep5}
-    <svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
-  {:else}
-    Next
-  {/if}
-</button>
-            </div>
-
-          {:else if stepId === 5}
+              <button class="bg-blue-600 text-white px-4 py-2 mt-2 rounded hover:bg-blue-700 disabled:opacity-50" on:click={handleNextToStep5} disabled={!selectedEventlinkEvent || loadingStep5}>
+            {#if loadingStep5}
+              <svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+            {:else}
+              Next
+            {/if}
+          </button>
+        </div>
+  {:else if stepId === 5}
+  {#if selectedEventlinkEvent && !selectedUnityEvent}
   <div class="space-y-3">
     <div>
       <label for="unityName" class="block text-sm font-medium text-zinc-700">Event Name<span class="text-red-500">*</span></label>
@@ -981,11 +1008,25 @@ onMount(async () => {
       <label for="unityDescription" class="block text-sm font-medium text-zinc-700">Description</label>
       <textarea id="unityDescription" class="w-full border rounded px-2 py-1" rows="3" placeholder="Describe the event…" bind:value={unityDescription} />
     </div>
-
-    <h4 class="font-semibold">Standings</h4>
   </div>
 
+  {:else}
+  {#if selectedUnityEventData}
+  <div class="space-y-3">
+      <div>
+      <label for="unityName" class="block text-sm font-medium text-zinc-700">Event Name<span class="text-red-500">*</span></label>
+      <input id="unityName" class="w-full border rounded px-2 py-1" type="text" placeholder="Event Name" bind:value={selectedUnityEventData.name} required />
+    </div>
+
+    <div>
+      <label for="unityDate" class="block text-sm font-medium text-zinc-700">Date<span class="text-red-500">*</span></label>
+      <input id="unityDate" class="w-full border rounded px-2 py-1" type="date" bind:value={selectedUnityEventData.date} required />
+    </div>
+  </div>
+  {/if}
+  {/if}
 <div class="flex items-center gap-4 mb-2">
+  <h4 class="font-semibold">Standings</h4>
   <label class="flex items-center gap-2">
     <input type="checkbox" bind:checked={useTopCut} on:change={autoSelectTopCut} /> Enable Top Cut
   </label>
