@@ -1,7 +1,7 @@
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { onDestroy, onMount, tick } from 'svelte';
-	import { createUnityEvent, uploadUnityResults } from '$lib/unity';
+	import { createUnityEvent, getEventsNeedingResults, uploadUnityResults } from '$lib/unity';
   import { browser } from '$app/environment';
 	import { loggedIn, user } from '$lib/stores/auth';
 	import { getStoreId, handleAuthFlow, requestCookiesFromExtension, startUnityOAuthLogin, verifyUnityAccessToken } from '$lib/auth';
@@ -25,8 +25,8 @@
   let uploadSuccess = false;
 
   let unityTarget: 'new' | 'existing' = 'new';
-  type UnityFormat = 'STANDARD' | 'MODERN' | 'PIONEER' | 'LEGACY' | 'COMMANDER' | 'PREMODERN' | 'VINTAGE' | 'OLDSCHOOL' | 'OTHER' | 'PAUPER';
-  type UnityCategory = 'LOCAL' | 'REGIONAL' | 'NATIONAL';
+  type UnityFormat = 'SEALED'|'DRAFT'|'LIMITED'|'STANDARD' | 'MODERN' | 'PIONEER' | 'LEGACY' | 'COMMANDER' | 'PREMODERN' | 'VINTAGE' | 'OLDSCHOOL' | 'OTHER' | 'PAUPER';
+  type UnityCategory = 'REGULAR' | 'REGIONAL' | 'NATIONAL' | 'DISTRICT';
 
   let selectedDate = '';
 
@@ -198,6 +198,7 @@ const fetchEventlinkEvents = async () => {
 
 async function getCalender() {
 		try {
+      console.log(await getEventsNeedingResults())
 			const cookies = await requestCookiesFromExtension();
       if(eventlinkStoreId == null){
         throw error;
@@ -938,6 +939,9 @@ onMount(async () => {
     <div>
       <label for="unityFormat" class="block text-sm font-medium text-zinc-700">Format<span class="text-red-500">*</span></label>
       <select id="unityFormat" class="w-full border rounded px-2 py-1" bind:value={unityFormat} required>
+        <option value="SEALED">Sealed</option>
+        <option value="DRAFT">Draft</option>
+        <option value="LIMITED">Limited</option>
         <option value="STANDARD">Standard</option>
         <option value="MODERN">Modern</option>
         <option value="PIONEER">Pioneer</option>
@@ -954,7 +958,7 @@ onMount(async () => {
     <div>
       <label for="unityCategory" class="block text-sm font-medium text-zinc-700">Category<span class="text-red-500">*</span></label>
       <select id="unityCategory" class="w-full border rounded px-2 py-1" bind:value={unityCategory} required>
-        <option value="LOCAL">Local</option>
+        <option value="REGULAR">Regular</option>
       </select>
     </div>
 

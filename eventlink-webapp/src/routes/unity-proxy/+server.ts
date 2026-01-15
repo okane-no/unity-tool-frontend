@@ -29,13 +29,12 @@ async function forward(request: Request, url: URL): Promise<Response> {
 
   if (request.method !== conf.method) return new Response('Method Not Allowed', { status: 405 });
 
-  // build path + query (without op)
   const search = new URLSearchParams(url.searchParams);
   search.delete('op');
   const qs = search.toString();
   const path = conf.backend + (qs ? `?${qs}` : '');
 
-  // server-side headers (NEVER log API_KEY_UNITY)
+  // server-side headers
   const headers = new Headers({ 'X-Api-Key': API_KEY_UNITY });
   const auth = request.headers.get('authorization');
   if (auth) headers.set('authorization', auth);
@@ -46,7 +45,6 @@ async function forward(request: Request, url: URL): Promise<Response> {
   const t = traceId();
   const t0 = Date.now();
 
-  // Use stderr so logs show up in k8s by default
   console.error(`[unity-proxy] start op=${op} method=${conf.method} target=${path} trace=${t}`);
 
   try {
