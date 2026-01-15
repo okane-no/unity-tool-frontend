@@ -879,8 +879,10 @@ onMount(async () => {
             </div>
 
           {:else if stepId === 3}
+          <div class="flex gap-2">
             <label><input type="radio" bind:group={unityTarget} value="new" /> Create new Unity event</label>
             <label><input type="radio" bind:group={unityTarget} value="existing" /> Use existing Unity event</label>
+          </div>
             {#if unityTarget == "existing"}
                  <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4 hover:bg-blue-700 disabled:opacity-25" disabled={false} on:click={loadMyUnityEvents}>Load My Unity Events</button>
               {#if unityEvents.length > 0}
@@ -906,7 +908,7 @@ onMount(async () => {
             </div>
 
           {:else if stepId === 4}
-            {#if unityTarget === 'new'}
+            {#if unityTarget === 'new' || unityTarget === 'existing'}
             <!-- Calender fix for when all months is ok -->
               <!-- <label>Date: <input class="w-full border rounded px-2 py-1" type="date" bind:value={selectedDate} /></label> -->
                <label class="block text-sm font-medium">
