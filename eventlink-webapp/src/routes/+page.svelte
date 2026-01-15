@@ -250,9 +250,14 @@ const handlePushToUnity = async () => {
   try {
 			error = null;
       uploadingNewUnityEvent = true
-      const buildedUnityEvent = buildUnityEvent()
-      const createEventResult = await createUnityEvent(buildedUnityEvent);
-			await uploadUnityResults(createEventResult?.api_url, eventlinkStandings);
+      if(selectedUnityEvent.length <= 0){
+        const buildedUnityEvent = buildUnityEvent()
+        const createEventResult = await createUnityEvent(buildedUnityEvent);
+        await uploadUnityResults(createEventResult?.api_url, eventlinkStandings);
+      }
+      else{
+        await uploadUnityResults(selectedUnityEvent, eventlinkStandings);
+      }
 			uploadSuccess = true;
       showToastMessage('Event pushed to Unity successfully!', 'success');
       uploadingNewUnityEvent = false
