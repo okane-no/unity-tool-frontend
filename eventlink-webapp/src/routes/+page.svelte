@@ -837,7 +837,6 @@ onMount(async () => {
               {:else}
 
               <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50" on:click={handleUnityLogin}>Login to Unity</button>
-              <button class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 disabled:opacity-50" on:click={handleVerifyStore}>Logout</button>
               {/if}
               {:else}
               <p>✅ Loading unity details.</p>

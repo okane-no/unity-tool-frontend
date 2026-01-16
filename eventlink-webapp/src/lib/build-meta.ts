@@ -1,3 +1,3 @@
 // auto-generated at build
-export const COMMIT_SHA='40a5490';
-export const BUILD_TIME='2025-09-13T22:46:22.214Z';
+export const COMMIT_SHA='46b64f8';
+export const BUILD_TIME='2026-01-16T14:10:25.775Z';
