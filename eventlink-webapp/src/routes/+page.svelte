@@ -25,7 +25,7 @@
   let uploadSuccess = false;
 
   let unityTarget: 'new' | 'existing' = 'new';
-  type UnityFormat = 'SEALED'|'DRAFT'|'LIMITED'|'STANDARD' | 'MODERN' | 'PIONEER' | 'LEGACY' | 'COMMANDER' | 'PREMODERN' | 'VINTAGE' | 'OLDSCHOOL' | 'OTHER' | 'PAUPER';
+  type UnityFormat = 'LIMITED'|'STANDARD' | 'MODERN' | 'PIONEER' | 'LEGACY' | 'COMMANDER' | 'PREMODERN' | 'VINTAGE' | 'OLDSCHOOL' | 'OTHER' | 'PAUPER';
   type UnityCategory = 'REGULAR' | 'REGIONAL' | 'NATIONAL' | 'DISTRICT';
 
   let selectedDate = '';
@@ -297,7 +297,7 @@ function resetToStep3() {
   unityStartTime = '';
   unityEndTime = '';
   unityFormat = 'STANDARD';
-  unityCategory = 'LOCAL';
+  unityCategory = 'REGULAR';
   unityUrl = '';
   unityDescription = 'A event created from okane eventlink tool.';
 }
@@ -982,8 +982,6 @@ onMount(async () => {
     <div>
       <label for="unityFormat" class="block text-sm font-medium text-zinc-700">Format<span class="text-red-500">*</span></label>
       <select id="unityFormat" class="w-full border rounded px-2 py-1" bind:value={unityFormat} required>
-        <option value="SEALED">Sealed</option>
-        <option value="DRAFT">Draft</option>
         <option value="LIMITED">Limited</option>
         <option value="STANDARD">Standard</option>
         <option value="MODERN">Modern</option>
