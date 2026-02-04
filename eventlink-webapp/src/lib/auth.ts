@@ -6,25 +6,46 @@ const EXTENSION_ID = 'acmbpjefmlanbipgfjckllmpmhjoooep';
 const LOCAL_UNITY_API = '/unity-proxy';
 const EVENTLINK_PROXY = '/eventlink-proxy';
 
-export async function requestCookiesFromExtension(): Promise<chrome.cookies.Cookie[]> {
-	return new Promise((resolve, reject) => {
-		if (!browser || !chrome?.runtime?.sendMessage) {
-			reject(new Error('Browser does not support extension messaging.'));
-			return;
-		}
-		chrome.runtime.sendMessage(EXTENSION_ID, { type: 'GET_COOKIES' }, (response) => {
-			if (chrome.runtime.lastError) {
-				reject(new Error('Extension error: ' + chrome.runtime.lastError.message));
-				return;
-			}
+const ALLOWED_COOKIE_NAMES = new Set([
+  '_client_EL',
+  '_refresh_EL',
+  'rootAuth',
+  'refreshToken'
+]);
 
-			if (!response) {
-				reject(new Error('No response from extension.'));
-				return;
-			}
-			resolve(response);
-		});
-	});
+export async function requestCookiesFromExtension(): Promise<chrome.cookies.Cookie[]> {
+  return new Promise((resolve, reject) => {
+    if (!browser || !chrome?.runtime?.sendMessage) {
+      reject(new Error('Browser does not support extension messaging.'));
+      return;
+    }
+
+    chrome.runtime.sendMessage(
+      EXTENSION_ID,
+      { type: 'GET_COOKIES' },
+      (cookies: chrome.cookies.Cookie[]) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error('Extension error: ' + chrome.runtime.lastError.message));
+          return;
+        }
+
+        if (!cookies) {
+          reject(new Error('No response from extension.'));
+          return;
+        }
+
+        const allowed = cookies.filter(c =>
+          ALLOWED_COOKIE_NAMES.has(c.name)
+        );
+
+        if (allowed.length === 0) {
+          console.warn('[eventlink] no allowed cookies present');
+        }
+
+        resolve(allowed);
+      }
+    );
+  });
 }
 
 function extractClientAuthToken(cookies: chrome.cookies.Cookie[]): string {
