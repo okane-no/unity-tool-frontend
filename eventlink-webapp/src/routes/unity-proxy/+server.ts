@@ -4,6 +4,7 @@ import { API_BASE_UNITY, API_KEY_UNITY } from '$env/static/private';
 
 const ROUTES: Record<string, { method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; backend: string }> = {
   'organizer.profile': { method: 'GET',  backend: '/api/unity/organizer/profile' },
+  'organizers.mine':   { method: 'GET',  backend: '/api/unity/organizers/mine' },
   'events.all':        { method: 'GET',  backend: '/api/unity/events' },
   'events.me':         { method: 'GET',  backend: '/api/unity/events/me' },
   'events.needing':    { method: 'GET',  backend: '/api/unity/events-needing-results' },

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { onDestroy, onMount, tick } from 'svelte';
-	import { createUnityEvent, getEventsNeedingResults, uploadUnityResults } from '$lib/unity';
+	import { createUnityEvent, getEventsNeedingResults, getMyOrganizers, uploadUnityResults, type UnityOrg } from '$lib/unity';
   import { browser } from '$app/environment';
 	import { loggedIn, user } from '$lib/stores/auth';
 	import { getStoreId, handleAuthFlow, requestCookiesFromExtension, startUnityOAuthLogin, verifyUnityAccessToken } from '$lib/auth';
@@ -63,6 +63,7 @@
     category: UnityCategory;
     url?: string;           // optional
     description?: string;   // optional
+    organizer_id?: number;  // required by Unity when the account manages multiple orgs
   };
 
   interface UnityEventLoaded {
@@ -113,6 +114,13 @@
   let unityCategory = 'REGULAR';
   let unityUrl = '';
   let unityDescription = 'A event created from okane eventlink tool.';
+
+  // Unity organizers (orgs) the logged-in user controls. Unity now requires an
+  // organizer_id on event creation when an account manages more than one org.
+  const UNITY_ORG_ID_KEY = 'unity_org_id';
+  let organizations: UnityOrg[] = [];
+  let selectedOrgId: number | null = null;
+  let loadingOrgs = false;
 
   let eventlinkStandings: EventlinkStandings = [];
   let fetchedEventlinkStandingsData: RawStanding[] = [];
@@ -247,6 +255,10 @@ const loadMyUnityEvents = async () => {
 const handlePushToUnity = async () => {
 
   await tick();
+  if (eventlinkStandings.length === 0) {
+    showToastMessage('Nothing to push — no standings were found for this event.', 'error');
+    return;
+  }
   try {
 			error = null;
       uploadingNewUnityEvent = true
@@ -320,9 +332,15 @@ const handleNextToStep5 = async () => {
         const eventUrl = selectedEventlinkEvent.url;
         const result = await fetchEventDetails(eventUrl, eventlinkStoreId, cookies);
         selectedEventlinkEvent = result.data[0];
-        fetchedEventlinkStandingsData = result.data[1][0];
+        // Standings may be absent when no round has been completed yet (e.g. the
+        // last round ran out of time). Read defensively and warn instead of pushing empty.
+        fetchedEventlinkStandingsData = result?.data?.[1]?.[0] ?? [];
         eventlinkStandings = toEventlinkStandings(fetchedEventlinkStandingsData);
-        showToastMessage('Fetched details for ' + selectedEventlinkEvent?.title, 'success');
+        if (eventlinkStandings.length === 0) {
+          showToastMessage('No standings found — this event has no completed round yet.', 'error');
+        } else {
+          showToastMessage('Fetched details for ' + selectedEventlinkEvent?.title, 'success');
+        }
       }
       catch{
         loadingStep5 = false;
@@ -399,13 +417,37 @@ $: if (selectedEventlinkEvent) {
   SeletectedEventUpdated(selectedEventlinkEvent);
 }
 
+// EventLink reports formats as free text (e.g. "Booster Draft", "Sealed Deck",
+// "Two-Headed Giant", "Prerelease", "Modern"). Unity only accepts a fixed set of
+// codes, and every limited-style format must be sent as LIMITED. Unknown strings
+// fall back to OTHER; the user can still override via the format dropdown.
+function mapEventLinkFormatToUnity(raw: string): UnityFormat {
+  const norm = (raw ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  // Limited-style formats → LIMITED
+  if (/DRAFT|SEALED|PRERELEASE|LIMITED|TWOHEADEDGIANT|2HG/.test(norm)) return 'LIMITED';
+
+  // Constructed formats pass through to their Unity code
+  if (norm.includes('STANDARD'))   return 'STANDARD';
+  if (norm.includes('PIONEER'))    return 'PIONEER';
+  if (norm.includes('PREMODERN'))  return 'PREMODERN';   // check before MODERN
+  if (norm.includes('MODERN'))     return 'MODERN';
+  if (norm.includes('LEGACY'))     return 'LEGACY';
+  if (norm.includes('VINTAGE'))    return 'VINTAGE';
+  if (norm.includes('PAUPER'))     return 'PAUPER';
+  if (norm.includes('OLDSCHOOL'))  return 'OLDSCHOOL';
+  if (norm.includes('COMMANDER') || norm.includes('EDH')) return 'COMMANDER';
+
+  return 'OTHER';
+}
+
 function SeletectedEventUpdated(selectedEvent: DetailedEventlinkEvent) {
   if (selectedEvent == undefined || selectedEvent == null){
     return
   }
 
   if (selectedEvent.title?.trim())       unityName      = selectedEvent.title.trim();
-  if (selectedEvent.format?.trim())      unityFormat    = selectedEvent.format.trim().toUpperCase();
+  if (selectedEvent.format?.trim())      unityFormat    = mapEventLinkFormatToUnity(selectedEvent.format);
 
   if (selectedEvent.date?.trim()) {
     const d = new Date(selectedEvent.date);
@@ -449,12 +491,13 @@ function buildUnityEvent(): UnityEvent {
   return {
     name: unityName.trim(),
     date: unityDate,
-    start_time: normalizeTime(unityStartTime), 
-    end_time: normalizeTime(unityEndTime),     
+    start_time: normalizeTime(unityStartTime),
+    end_time: normalizeTime(unityEndTime),
     format: unityFormat as UnityFormat,
     category: unityCategory as UnityCategory,
-    url: (unityUrl ?? "").trim(),              
-    description: (unityDescription ?? "").trim(), 
+    url: (unityUrl ?? "").trim(),
+    description: (unityDescription ?? "").trim(),
+    ...(selectedOrgId != null ? { organizer_id: selectedOrgId } : {}),
   };
 }
 
@@ -469,10 +512,42 @@ function buildUnityEvent(): UnityEvent {
 
   function logoutWithUnityLeague() {
 		localStorage.removeItem('unity_access_token');
+		localStorage.removeItem(UNITY_ORG_ID_KEY);
+		organizations = [];
+		selectedOrgId = null;
 		user.set(null);
 		loggedIn.set(false);
 		window.location.reload();
 	}
+
+  // Fetch the user's organizers and pick one: keep a previously stored choice if
+  // still valid, auto-select when there's a single org, otherwise default to the first.
+  async function loadOrganizations() {
+    loadingOrgs = true;
+    try {
+      const orgs = await getMyOrganizers();
+      organizations = orgs ?? [];
+
+      if (organizations.length === 0) {
+        selectedOrgId = null;
+        return;
+      }
+
+      const stored = Number(localStorage.getItem(UNITY_ORG_ID_KEY));
+      const storedValid = !isNaN(stored) && organizations.some((o) => o.id === stored);
+      selectedOrgId = storedValid ? stored : organizations[0].id;
+      persistSelectedOrg();
+    } catch (err) {
+      console.error('Failed to load organizers', err);
+      showToastMessage('Failed to load your Unity organizers', 'error');
+    } finally {
+      loadingOrgs = false;
+    }
+  }
+
+  function persistSelectedOrg() {
+    if (selectedOrgId != null) localStorage.setItem(UNITY_ORG_ID_KEY, String(selectedOrgId));
+  }
 
 let loadingUnityVerify = false
 
@@ -495,6 +570,7 @@ onMount(async () => {
       console.log("finished verify")
 			console.log('✅ Verified login:', result);
       loadingUnityVerify = false;
+      await loadOrganizations();
 		} catch (err) {
 			error = 'Invalid or expired token';
 			localStorage.removeItem('unity_access_token');
@@ -833,7 +909,33 @@ onMount(async () => {
                 </div>
               </div>
               <button class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 disabled:opacity-50" on:click={logoutWithUnityLeague}>Logout</button>
-             
+
+              <!-- Unity organizer (org) selection — required on event creation when an account controls multiple orgs -->
+              <div class="mt-4">
+                {#if loadingOrgs}
+                  <p class="text-sm text-zinc-600">Loading your organizers…</p>
+                {:else if organizations.length === 1}
+                  <p class="text-sm text-zinc-700">Organizer: <span class="font-medium">{organizations[0].name}</span></p>
+                {:else if organizations.length > 1}
+                  <label for="unityOrg" class="block text-sm font-medium text-zinc-700">
+                    Organizer<span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="unityOrg"
+                    class="w-full border rounded px-2 py-1 mt-1"
+                    bind:value={selectedOrgId}
+                    on:change={persistSelectedOrg}
+                  >
+                    {#each organizations as org}
+                      <option value={org.id}>{org.name}</option>
+                    {/each}
+                  </select>
+                  <p class="mt-1 text-xs text-zinc-500">New Unity events will be created under this organizer.</p>
+                {:else}
+                  <p class="text-sm text-amber-700">No organizers found on your Unity account. You need an organizer profile to create events.</p>
+                {/if}
+              </div>
+
               {:else}
 
               <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50" on:click={handleUnityLogin}>Login to Unity</button>
@@ -847,7 +949,7 @@ onMount(async () => {
             {/if}
             <div class="flex gap-2">
               <button class="bg-gray-300 px-4 py-2 rounded mt-4 hover:bg-gray-400" on:click={() => currentStep = 0}>Back</button>
-              <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-4 disabled:opacity-50" on:click={() => currentStep = 2} disabled={!unityLoggedIn}>Next</button>
+              <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-4 disabled:opacity-50" on:click={() => currentStep = 2} disabled={!unityLoggedIn || selectedOrgId == null}>Next</button>
             </div>
 
             {:else if stepId === 2}

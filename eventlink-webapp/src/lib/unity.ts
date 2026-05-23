@@ -26,6 +26,15 @@ export async function getMyOrganizerProfile(): Promise<any> {
   return res.json();
 }
 
+export type UnityOrg = { id: number; name: string; events: string[] };
+
+// Organizers the authenticated user controls. Unity returns a bare array.
+export async function getMyOrganizers(): Promise<UnityOrg[]> {
+  const res = await call('organizers.mine', { method: 'GET' });
+  if (!res.ok) throw new Error(await res.text() || 'Failed to fetch organizers');
+  return res.json();
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getAllEvents(): Promise<any[]> {
   const res = await call('events.all', { method: 'GET' });
@@ -57,6 +66,7 @@ export async function createUnityEvent(eventData: {
   category: string;
   url?: string;
   description?: string;
+  organizer_id?: number;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): Promise<any> {
   const res = await call('events.create', {
