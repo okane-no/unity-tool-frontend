@@ -87,10 +87,11 @@ export async function handleAuthFlow() {
 	}
 }
 
-export async function getStoreId() {
+export type EventlinkStore = { id: string; name: string | null };
+
+export async function getEventlinkStores(): Promise<{ stores: EventlinkStore[]; storeId: string | null }> {
   try {
     const cookies = await requestCookiesFromExtension();
-	console.log(cookies)
     const res = await fetch(`${EVENTLINK_PROXY}?op=verify`, {
       method: 'GET',
       headers: {
@@ -100,12 +101,11 @@ export async function getStoreId() {
     });
 
     const text = await res.text();
-	console.log(text)
     if (!res.ok) throw new Error(text || 'Auth verification failed');
 
-    const data = JSON.parse(text); // { storeId: string, ... }
-    localStorage.setItem('eventlink_store_id', data.storeId);
-    return data.storeId;
+    // { message, stores: [{id,name}], storeId } — storeId is set only for single-store accounts.
+    const data = JSON.parse(text);
+    return { stores: data.stores ?? [], storeId: data.storeId ?? null };
   } catch (err) {
     console.error('❌ Auth flow failed:', err);
     throw err;

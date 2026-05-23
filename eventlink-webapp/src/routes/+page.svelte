@@ -4,7 +4,7 @@
 	import { createUnityEvent, getEventsNeedingResults, getMyOrganizers, uploadUnityResults, type UnityOrg } from '$lib/unity';
   import { browser } from '$app/environment';
 	import { loggedIn, user } from '$lib/stores/auth';
-	import { getStoreId, handleAuthFlow, requestCookiesFromExtension, startUnityOAuthLogin, verifyUnityAccessToken } from '$lib/auth';
+	import { getEventlinkStores, handleAuthFlow, requestCookiesFromExtension, startUnityOAuthLogin, verifyUnityAccessToken, type EventlinkStore } from '$lib/auth';
 	import { fetchCalendarEvents, fetchEventDetails } from '$lib/eventlink';
   import { COMMIT_SHA, BUILD_TIME } from '$lib/build-meta';
 
@@ -20,6 +20,8 @@
   let verifyingStore = false;
   let unityUser: { username: string } | null = null;
   let eventlinkStoreId: string | null = null;
+  // EventLink stores the logged-in account controls. >1 => show a picker in Step 2.
+  let eventlinkStores: EventlinkStore[] = [];
 	let simulateStoreFound = false;
   let error: string | null = null;
   let uploadSuccess = false;
@@ -165,8 +167,15 @@
 		try {
       console.log('check event link coockies')
 			error = null;
-			storeid = await getStoreId();
-      eventlinkStoreId = storeid;
+			const { stores, storeId } = await getEventlinkStores();
+			eventlinkStores = stores;
+			if (stores.length === 0) {
+				loggedeventlink = false;
+				return;
+			}
+			// Auto-select for a single store; default to the first when there are several
+			// (the user can change it via the dropdown). Picked per session — not persisted.
+			eventlinkStoreId = storeId ?? stores[0].id;
 			loggedeventlink = true;
 		} catch (err: any) {
 			error = err.message;
@@ -186,6 +195,7 @@
       } else {
         eventlinkLoggedIn = false;
         eventlinkStoreId = null;
+        eventlinkStores = [];
         loggedeventlink = false
         triedToVerify = true
         showToastMessage('Store not found. Please login to Eventlink and retry.', 'error');
@@ -504,7 +514,6 @@ function buildUnityEvent(): UnityEvent {
 
 
 	let loggedeventlink = false;
-  let storeid: any | null = null;
 
   function loginWithUnityLeague() {
 		startUnityOAuthLogin();
@@ -954,9 +963,19 @@ onMount(async () => {
 
             {:else if stepId === 2}
             {#if eventlinkLoggedIn}
-              <p>✅ Eventlink Store is valid</p>
-              {#if eventlinkStoreId}
-                <p>Store ID: {eventlinkStoreId}</p>
+              <p>✅ Eventlink login verified</p>
+              {#if eventlinkStores.length > 1}
+                <label for="eventlinkStore" class="block text-sm font-medium text-zinc-700">
+                  Store<span class="text-red-500">*</span>
+                </label>
+                <select id="eventlinkStore" class="w-full border rounded px-2 py-1 mt-1" bind:value={eventlinkStoreId}>
+                  {#each eventlinkStores as store}
+                    <option value={store.id}>{store.name ?? store.id} (#{store.id})</option>
+                  {/each}
+                </select>
+                <p class="mt-1 text-xs text-zinc-500">You control multiple stores — pick which one to sync from.</p>
+              {:else if eventlinkStoreId}
+                <p>Store: {eventlinkStores[0]?.name ?? ''} (ID: {eventlinkStoreId})</p>
               {/if}
             {:else}
             <p>❌ No verified StoreID</p>
