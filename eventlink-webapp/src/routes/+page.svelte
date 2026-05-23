@@ -926,20 +926,24 @@ onMount(async () => {
                 {:else if organizations.length === 1}
                   <p class="text-sm text-zinc-700">Organizer: <span class="font-medium">{organizations[0].name}</span></p>
                 {:else if organizations.length > 1}
-                  <label for="unityOrg" class="block text-sm font-medium text-zinc-700">
-                    Organizer<span class="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="unityOrg"
-                    class="w-full border rounded px-2 py-1 mt-1"
-                    bind:value={selectedOrgId}
-                    on:change={persistSelectedOrg}
-                  >
-                    {#each organizations as org}
-                      <option value={org.id}>{org.name}</option>
-                    {/each}
-                  </select>
-                  <p class="mt-1 text-xs text-zinc-500">New Unity events will be created under this organizer.</p>
+                  <div class="rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
+                    <label for="unityOrg" class="block text-base font-semibold text-amber-900">
+                      ⚠️ Choose your Unity organizer<span class="text-red-500">*</span>
+                    </label>
+                    <p class="mt-1 text-xs text-amber-800">
+                      You control multiple organizers. New events will be created under the one selected here — make sure it's the right one before continuing.
+                    </p>
+                    <select
+                      id="unityOrg"
+                      class="w-full border border-amber-400 rounded px-2 py-2 mt-2 font-medium bg-white"
+                      bind:value={selectedOrgId}
+                      on:change={persistSelectedOrg}
+                    >
+                      {#each organizations as org}
+                        <option value={org.id}>{org.name}</option>
+                      {/each}
+                    </select>
+                  </div>
                 {:else}
                   <p class="text-sm text-amber-700">No organizers found on your Unity account. You need an organizer profile to create events.</p>
                 {/if}
@@ -1224,8 +1228,16 @@ onMount(async () => {
   </table>
 </div>
 
+            {#if !selectedUnityEvent && organizations.length > 1 && !uploadSuccess}
+              <div class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                This event will be created under organizer:
+                <span class="font-semibold">{organizations.find((o) => o.id === selectedOrgId)?.name ?? '—'}</span>.
+                <button class="underline decoration-dotted underline-offset-2 ml-1" on:click={() => goTo(1)}>Change</button>
+              </div>
+            {/if}
+
             <div class="flex gap-2">
-              
+
               {#if !uploadSuccess}
               <button class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400" on:click={resetToStep3}>Restart process</button>
               <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50" on:click={handlePushToUnity} disabled={uploadingNewUnityEvent}>
