@@ -697,18 +697,21 @@ onMount(async () => {
 
     window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
   }
-/// Calender fix while cant use other than current month
+/// Selectable window: the last 2 weeks (WotC/EventLink only retains ~14 days of
+/// event data for GDPR). This can reach into the previous month near a month
+/// boundary; the scraper navigates to the right month to read it.
     const fmt = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
   const now = new Date();
-  const minDate = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+  const DATA_RETENTION_DAYS = 14;
+  const minDate = fmt(new Date(now.getFullYear(), now.getMonth(), now.getDate() - DATA_RETENTION_DAYS));
   const maxDate = fmt(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
-  // Optional: clear/clamp if user somehow sets a date outside the month
+  // Clamp if the user somehow sets a date outside the selectable window
   $: if (selectedDate && (selectedDate < minDate || selectedDate > maxDate)) {
     selectedDate = minDate;
-    
+
   }
 
    $: if (selectedDate) {
@@ -754,6 +757,7 @@ onMount(async () => {
         FG-204 <span class="opacity-70">(β)</span>
       </span>
       <span class="ml-2 opacity-70">beta build</span>
+      <a href="/changelog" class="ml-2 underline decoration-dotted underline-offset-4 hover:text-zinc-700">v1.1.0 — what’s new</a>
     </p>
 
 
@@ -1046,7 +1050,7 @@ onMount(async () => {
                   />
               </label>
               <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            <span class="font-semibold">NB:</span> For now, event search is limited to the <span class="font-medium"> current calendar month</span>.
+            <span class="font-semibold">NB:</span> Only the <span class="font-medium">last 2 weeks</span> of events can be synced — Wizards of the Coast (EventLink) only retains event data for about 14 days for data-protection/GDPR reasons. Near the start of a month this window reaches back into the previous month.
           </div>
               <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 disabled:opacity-50" on:click={fetchEventlinkEvents} disabled={loadingEvents}>
 				{#if loadingEvents}
@@ -1274,6 +1278,12 @@ onMount(async () => {
       <span class="opacity-50">•</span>
       <time title={BUILD_TIME}>{new Date(BUILD_TIME).toLocaleString()}</time>
     {/if}
+
+    <span class="opacity-50">•</span>
+    <a href="/changelog" target="_blank" rel="noopener"
+       class="underline decoration-dotted underline-offset-4 hover:text-zinc-700 dark:hover:text-zinc-300">
+      What’s new
+    </a>
 
     <span class="opacity-50">•</span>
     <a href="/__meta" target="_blank" rel="noopener"
